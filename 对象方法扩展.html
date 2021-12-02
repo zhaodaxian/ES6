@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>对象方法扩展</title>
+</head>
+<body>
+    <script>
+        /** 
+         * 1、Object.assign()
+         * 方法用于对象的合并，将源对象（source）的所有可枚举属性，复制到目标对象（target）。
+         */
+
+        /** 
+         * Object.setPrototypeOf()（写操作）、
+         * Object.getPrototypeOf()（读操作）、
+         * Object.create()（生成操作）代替。
+         * 实现上，__proto__调用的是Object.prototype.__proto__，具体实现如下。
+         */
+        Object.defineProperty(Object.prototype, '__proto__', {
+            get() {
+                let _thisObj = Object(this);
+                return Object.getPrototypeOf(_thisObj);
+            },
+            set(proto) {
+                if (this === undefined || this === null) {
+                    throw new TypeError();
+                }
+                if (!isObject(this)) {
+                    return undefined;
+                }
+                if (!isObject(proto)) {
+                    return undefined;
+                }
+                let status = Reflect.setPrototypeOf(this, proto);
+                if (!status) {
+                    throw new TypeError();
+                }
+            },
+        });
+
+        function isObject(value) {
+            return Object(value) === value;
+        }
+        /** 
+         * Object.fromEntries()
+         * 
+         */
+        // 例一
+            const entries = new Map([
+                ['foo', 'bar'],
+                ['baz', 42]
+            ]);
+
+            Object.fromEntries(entries)
+            // { foo: "bar", baz: 42 }
+
+            // 例二
+            const map = new Map().set('foo', true).set('bar', false);
+            Object.fromEntries(map)
+            // { foo: true, bar: false }
+    </script>
+</body>
+</html>
